@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 마음 날씨 | Emotion Check-in</title>
+    <style>
+        /* --- 기본 설정 --- */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-color: #f0f2f5;
+            --card-color: #ffffff;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --accent: #6c5ce7;
+            --transition-speed: 0.6s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color var(--transition-speed) ease;
+            padding: 20px;
+        }
+
+        /* --- 메인 컨테이너 --- */
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            margin-bottom: 40px;
+        }
+
+        /* --- 감정 선택 그리드 --- */
+        .emotion-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .emotion-btn {
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .emotion-btn span.emoji { font-size: 2rem; }
+        .emotion-btn span.label { font-size: 0.9rem; font-weight: 600; color: #555; }
+
+        .emotion-btn:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            background-color: #f8f9fa;
+        }
+
+        .emotion-btn.active {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .emotion-btn.active span.label { color: white; }
+
+        /* --- 결과 섹션 (처음엔 숨김) --- */
+        .result-section {
+            display: none; /* JS로 제어 */
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .advice-card {
+            background-color: rgba(255,255,255,0.5);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--accent);
+            text-align: left;
+        }
+
+        .advice-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
+        .advice-text { font-size: 1rem; line-height: 1.6; color: #444; }
+
+        .quote {
+            font-style: italic;
+            color: #666;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        /* --- 감정 쓰레기통 (메모장) --- */
+        .textarea-box {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            resize: none;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .textarea-box:focus { outline: 2px solid var(--accent); border: none; }
+
+        /* --- 모바일 대응 --- */
+        @media (max-width: 500px) {
+            .emotion-grid { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>오늘, 당신의 마음은?</h1>
+        <p class="subtitle">지금 느껴지는 솔직한 감정을 하나 선택해주세요.</p>
+
+        <div class="emotion-grid">
+            <button class="emotion-btn" onclick="checkEmotion('happy')">
+                <span class="emoji">🥰</span>
+                <span class="label">행복/설렘</span>
+            </button>
+            <button class="emotion-btn" onclick="checkEmotion('calm')">
+                <span class="emoji">🌿</span>
+                <span class="label">평온/차분</span>
+            </button>
+            <button class="emotion-btn" onclick="checkEmotion('anxious')">
+                <span class="emoji">🌪️</span>
+                <span class="label">불안/초조</span>
+            </button>
+            <button class="emotion-btn" onclick="checkEmotion('sad')">
+                <span class="emoji">💧</span>
+                <span class="label">우울/슬픔</span>
+            </button>
+            <button class="emotion-btn" onclick="checkEmotion('angry')">
+                <span class="emoji">🔥</span>
+                <span class="label">화남/답답</span>
+            </button>
+            <button class="emotion-btn" onclick="checkEmotion('tired')">
+                <span class="emoji">🔋</span>
+                <span class="label">지침/방전</span>
+            </button>
+        </div>
+
+        <div id="result" class="result-section">
+            <div class="advice-card">
+                <div class="advice-title" id="res-title">처방전 타이틀</div>
+                <div class="advice-text" id="res-text">여기에 조언이 들어갑니다.</div>
+            </div>
+            
+            <p class="quote" id="res-quote">"명언이 들어가는 자리"</p>
+
+            <div style="text-align: left; margin-top: 30px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 8px;">🗑️ 감정 쓰레기통</label>
+                <textarea class="textarea-box" placeholder="여기에 마음속 복잡한 생각을 털어놓으세요. 페이지를 닫으면 모두 사라집니다."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 감정별 데이터 (색상, 조언, 명언)
+        const moodData = {
+            'happy': {
+                color: '#fff5d7', // 따뜻한 노란색 배경
+                accent: '#ffb142',
+                title: '지금 이 순간을 즐기세요!',
+                text: '긍정적인 에너지가 가득하네요. 이 기분을 기록해두거나, 소중한 사람들에게 해피 바이러스를 나눠주는 건 어떨까요?',
+                quote: '"행복은 나비와 같다. 잡으려 하면 달아나지만, 조용히 앉아 있으면 어깨 위에 내려앉는다."'
+            },
+            'calm': {
+                color: '#e3f9e5', // 편안한 초록색 배경
+                accent: '#2ecc71',
+                title: '마음의 균형이 잡혀있군요.',
+                text: '지금의 평온함은 최고의 자산입니다. 따뜻한 차 한 잔이나 가벼운 독서로 이 여유를 조금 더 만끽해보세요.',
+                quote: '"평온함은 삶의 폭풍우 속에서도 마음의 중심을 지키는 것이다."'
+            },
+            'anxious': {
+                color: '#e8e0ff', // 보라색 톤 (진정)
+                accent: '#8c7ae6',
+                title: '잠시 숨을 고르세요.',
+                text: '너무 잘하려고 애쓰지 않아도 괜찮아요. 지금 당장 눈을 감고 3번만 깊게 심호흡을 해보세요. 불안은 구름처럼 지나갈 거예요.',
+                quote: '"걱정은 내일의 슬픔을 덜어주는 것이 아니라, 오늘의 힘을 앗아갈 뿐이다."'
+            },
+            'sad': {
+                color: '#dff9fb', // 차분한 하늘색
+                accent: '#22a6b3',
+                title: '충분히 슬퍼해도 괜찮아요.',
+                text: '오늘은 무리하지 말고 스스로를 토닥여주세요. 좋아하는 음악을 듣거나 일찍 잠자리에 드는 것도 좋은 처방입니다.',
+                quote: '"눈물은 영혼을 씻어주는 비와 같다. 비가 그치면 무지개가 뜰 것이다."'
+            },
+            'angry': {
+                color: '#ffdddd', // 옅은 붉은색
+                accent: '#ff6b6b',
+                title: '열기를 식힐 시간이 필요해요.',
+                text: '감정은 파도와 같아서 솟구쳤다가 가라앉습니다. 찬물을 한 잔 마시거나 잠시 바깥 공기를 쐬며 시야를 환기해보세요.',
+                quote: '"화가 났을 때는 입을 열기 전에 열을 세어라. 그래도 화가 풀리지 않으면 백을 세어라."'
+            },
+            'tired': {
+                color: '#f1eadd', // 베이지/브라운 (휴식)
+                accent: '#cd6133',
+                title: '잠시 멈춤 버튼을 누르세요.',
+                text: '배터리가 깜빡거리고 있네요. 죄책감 갖지 말고 오늘은 "나를 위한 휴식"을 최우선 업무로 지정하세요.',
+                quote: '"휴식은 게으름이 아니다. 더 멀리 나아가기 위한 도약의 준비다."'
+            }
+        };
+
+        function checkEmotion(mood) {
+            const data = moodData[mood];
+            
+            // 1. 배경 및 포인트 컬러 변경
+            document.body.style.backgroundColor = data.color;
+            document.documentElement.style.setProperty('--accent', data.accent);
+
+            // 2. 버튼 활성화 상태 변경
+            const buttons = document.querySelectorAll('.emotion-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // 3. 텍스트 내용 업데이트
+            document.getElementById('res-title').innerText = data.title;
+            document.getElementById('res-text').innerText = data.text;
+            document.getElementById('res-quote').innerText = data.quote;
+
+            // 4. 결과창 표시 (이미 떠있으면 잠깐 깜빡이는 효과)
+            const resultSection = document.getElementById('result');
+            resultSection.style.display = 'none';
+            setTimeout(() => {
+                resultSection.style.display = 'block';
+            }, 10);
+        }
+    </script>
+</body>
+</html>
